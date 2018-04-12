@@ -1,0 +1,69 @@
+#Inforsight git代码地址：
+http://code.huawei.com/inforsight/inforsight-parent
+
+# 下载代码和添加仓库
+1 Fork inforsight/inforsight-parent 工程
+
+2、git clone git@code.huawei.com:xxxxxx/inforsight-parent.git
+
+3、git remote add upstream git@code.huawei.com:inforsight/inforsight-parent.git
+
+
+#如何同步/更新远程仓库(inforsight/inforsight-parent)到私人仓库
+1 git fetch xxxx(远程仓库upstream) //把远程仓库的代码获取到本地
+
+2 git rebase xxxx/master //把远程仓库的master分支代码，同步到本地，需要注意，这步骤运行时，本地分支最好是在master分支情况下
+
+3、git push yyyy(私人仓库mygit)/master //把当前master分支的代码同步到远程私人仓库(mygit)
+
+
+#提交代码的过程
+1、基于本地master分支checkout 新的分支，作为代码开发的基线
+  git checkout -b testxxxxx
+2、在  testxxxxx分支下修改代码，验证代码
+3、git add xxxxx(xxxxx表示你修改的代码，可以是多个文件)
+4、git commit -m "添加你的注释"t 
+5、git push origin testxxxxx //把testxxxxx分支push到私人仓库下
+6、登陆私人仓库网站，进行Merge Request动作
+
+#删除分支
+1、删除本地分支
+  git branch -D branch_name
+2、删除远程分支
+  git push origin(远程仓库名) :branch_name  
+
+#注意事项
+1、 Merge Reques的标题，注明是哪个模块，比如"[Pipeline]修改pom文件，消除jar依赖冲突"
+2、Merge Reques注意target branch选择，默认是私人仓库的分支，需要手动修改。
+
+git fetch <远程主机名> <分支名>
+git pull <远程主机名> <远程分支名>:<本地分支名>
+git push <远程主机名> <本地分支名>:<远程分支名>
+
+由于定期需要将master中的代码合并到自己fork的代码中。
+如果已经出现冲突时：
+1。找到master 提交的comment id //http://code.huawei.com/pWX312704/inforsight-parent/commits/master
+2. $ git reset --hard d16232abe76d0548c295b6c69d7de8f18a033506 撤销本地的commit 
+3. git push origin HEAD --force 撤销服务器上的commit 
+撤销到没有冲突的commit为止
+
+
+4. $ git remote add upstream git@code.huawei.com:inforsight/inforsight-parent.git
+$ git remote update upstream
+$ git rebase upstream/master
+
+$ git push origin master
+
+建议不要在master上开发代码，每次开发时，从master上切一个分支出来，然后在分支上开发，
+开发完成以后，在分支上合并到inforsight 的master 删除分支。
+从主master上更新到自己的分支上， 这样肯定不会冲突因为自己的master从来没有改过
+
+更新子模块
+git submodule init
+git submodule update
+git submodule foreach "git pull origin master"
+编译测试文件 mvn clean cobertura:cobertura
+
+mvn clean cobertura::cobertura -Dmaven.test.failure.ignore=true -Dmaven.test.error.ignore=true
+
+
