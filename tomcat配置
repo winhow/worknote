@@ -1,0 +1,8 @@
+1.web工程打包成war包，放在tomcat的webapps文件夹下，启动tomcat，会自动解压部署
+
+2.编译后的web工程，idea下的springMVC项目举例，目录一般是在：{工程路径}/out/artifacts/springMVC_war_exploded，然后再tomcat_home目录下conf/server.xml中<host>标签下增加
+<Context path="/WebProject" docBase="D:/gitcode/MyProject/springMVC/out/artifacts/springMVC_war_exploded" reloadable="true" />配置
+path表示访问时的url路径，docBase表示编译后的项目路径
+
+3.在tomcat_home目录下conf/Catalina/locahost目录下创建一个xml文件，文件名随意，举例为springMVC.xml，xml文件中内容为<Context  docBase="D:/gitcode/MyProject/springMVC/out/artifacts/springMVC_war_exploded" reloadable="true" />
+tomcat启动的时候输入http://localhost:8080/springMVC/访问，springMVC为配置的xml文件名
