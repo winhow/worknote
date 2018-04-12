@@ -1,0 +1,60 @@
+1、基本操作
+查看物理磁盘内存：df -h
+从文件内容查找与正则表达式匹配的行：
+$ grep –e “正则表达式” 文件名
+
+查找时不区分大小写：
+$ grep –i "被查找的字符串" 文件名
+
+查找匹配的行数：
+$ grep -c "被查找的字符串" 文件名
+
+
+从文件内容查找不匹配指定字符串的行：
+$ grep –v "被查找的字符串" 文件名
+du -h --max-depth=1
+
+jdbc:derby:;databaseName=metastore_db;create=true
+
+2、免密操作
+ssh-keygen -t rsa
+
+一直enter键
+
+复制的id_rsa.pub添加到.ssh/authorized_keys文件里
+
+
+执行：ssh-keygen -t rsa
+这时.ssh目录下会生成私钥和公钥的键值对id_rsa，id_rsa.pub
+再其他服务器上执行同样的命令生成文件
+Linux ssh设置免密码登录
+将所有服务器上的公钥合并到一个文件authorized_keys中
+cat id_rsa.pub >> authorized_keys
+ssh root@s205 cat /root/.ssh/id_rsa.pub >> authorized_keys 
+Linux ssh设置免密码登录
+查看authorized_keys里面有多个server的公钥信息，如果你有多个server同样往里面加就好了
+Linux ssh设置免密码登录
+将authorized_keys、known_hosts分别复制到其他服务器的.ssh目录下
+scp authorized_keys root@s205:/root/.ssh/
+scp known_hosts root@s205:/root/.ssh/
+Linux ssh设置免密码登录
+6
+这时候再ssh登录，这时候就不用再输入密码啦。
+Linux ssh设置免密码登录
+
+3.进程查看
+ps -ef | grep 进程ID/关键字
+
+top 查看cpu使用率
+
+4、清除缓存
+sync
+echo 1 > /proc/sys/vm/drop_caches
+echo 2 > /proc/sys/vm/drop_caches
+echo 3 > /proc/sys/vm/drop_caches
+linux清理缓存
+
+5、修改时间
+suse系统：date -s "Tue Jan  3 10:43:35 CST 2017"
+
+du -h --max-depth=1  //查看当前目录下文件大小
