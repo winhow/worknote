@@ -1,13 +1,3 @@
-#Inforsight git代码地址：
-http://code.huawei.com/inforsight/inforsight-parent
-
-# 下载代码和添加仓库
-1 Fork inforsight/inforsight-parent 工程
-
-2、git clone git@code.huawei.com:xxxxxx/inforsight-parent.git
-
-3、git remote add upstream git@code.huawei.com:inforsight/inforsight-parent.git
-
 
 #如何同步/更新远程仓库(inforsight/inforsight-parent)到私人仓库
 1 git fetch xxxx(远程仓库upstream) //把远程仓库的代码获取到本地
@@ -66,4 +56,43 @@ git submodule foreach "git pull origin master"
 
 mvn clean cobertura::cobertura -Dmaven.test.failure.ignore=true -Dmaven.test.error.ignore=true
 
+maven编译项目指令 
+mvn clean install -DskipTests -Dmaven.test.skip=true -DskipPackage=true -Dassembly.skipAssembly=true -e
+
+增加以下语句编译sniper成功cd ..
+使用：mvn clean package -DskipTests
+1对spark进行编译时，会报错：
+java.lang.OutOfMemoryError: PermGen space
+1
+解决办法：
+1.window下：
+set MAVEN_OPTS=-Xmx2g -XX:MaxPermSize=512M -XX:ReservedCodeCacheSize=512m  
+2.ubuntu下：
+export MAVEN_OPTS="-Xmx2g -XX:MaxPermSize=512M -XX:ReservedCodeCacheSize=512m"
+然后再进行mvn编译
+
+查看远程分支
+
+加上-a参数可以查看远程分支，远程分支会用红色表示出来（如果你开了颜色支持的话）：
+
+$ git branch -a
+$ git push origin --delete <branchName>
+否则，可以使用这种语法，推送一个空分支到远程分支，其实就相当于删除远程分支：
+
+git commit -a --amend可以把这次commit追加到上一条
+
+git push origin :<branchName>
+
+克隆指定远端仓库指定分支
+git clone -b DDE_API_dev git@code.huawei.com:inforsight/inforsight-algobase.git
+
+#gitignore
+git rm -r --cached .
+git add .
+git commit -m 'update .gitignore'
+
+reset命令有3种方式：
+1：git reset –mixed：此为默认方式，不带任何参数的git reset，即时这种方式，它回退到某个版本，只保留源码，回退commit和index信息
+2：git reset –soft：回退到某个版本，只回退了commit的信息，不会恢复到index file一级。如果还要提交，直接commit即可
+3：git reset –hard：彻底回退到某个版本，本地的源码也会变为上一个版本的内容
 
