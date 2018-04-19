@@ -1,0 +1,60 @@
+Jenkins安装配置与插件使用说明
+一、安装与基本配置
+1、	下载与安装：https://wiki.jenkins-ci.org/display/JENKINS/Meet+Jenkins，下载即可。linux服务器上输入java –version，看java版本最好在1.6.0或以上。安装时，运行java -jar Jenkins.zip  &,直到出现如下页面，说明安装基本成功。此时可以用CTRL+C终止，jenkins已经在后台运行（可用ps aux | grep ‘java –jar jenkins’来查看）
+ 
+此时在你自己机器上浏览器上（最好是IE）地址栏上输入http://10.107.123.31:8080（IP地址请根据自己服务器地址替换）即可进入Jenkins界面，如下图所示：
+ 
+2、	jenkins端口修改：jenkins默认使用的是8080端口，但有时候会与某些应用冲突，如gerrit也默认使用8080端口，此时可以在运行的时候，输入java –jar jenkins.zip --httpPort=8081，其中8081就是你指定的端口，此时在web页面输入http://10.107.123.36:8081即可进入jenkins服务器。
+3、	jenkins插件扩展：jenkins可以扩展很丰富的插件，可以根据自己的需求安装以适应不同项目的需求。https://wiki.jenkins-ci.org/display/JENKINS/Plugins，可以直接下载需要的插件。下载下来后格式是.zip格式，要修改文件格式为.hpi。然后拷贝到linux服务器你自己主目录底下.jenkins\plugins文件夹底下即可，如图所示，jenkins还自带了很多插件，都是.hpi格式。
+ 
+二、gerrit-trigger插件用法
+gerrit-trigger插件与jenkins集成以后，可以实现，有提交到gerrit库的操作，就会自动触发jenkins进行实时增量构建。
+安装gerrit-trigger:
+在jenkins页面中点击：系统管理--管理插件—已安装，可以看到已经安装的插件（默认已经安装了ant、javadoc、CVS等插件）.点击：高级—上传插件，再选择linux服务器上保存gerrit插件的地址，然后点击“上传”，如图所示：
+ 
+接着选择“已安装”，可以看到最下面有一行黄字“所有改变会在重新启动Jenkins以后生效”，点击restart按钮，等jenkins重启，即可在已安装里面看到Gerrit Trigger出现在插件列表中。
+
+注：有些插件必须安装一些前续必要插件才能看到，比如gerrit-trigger要是无法在已安装列表里看到，请先安装git.hpi插件。
+自动EMAIL通知：
+jenkins在执行构建失败了以后，可以按照指定的邮箱发送邮件给开发人员，点击系统管理，在配置页面中的邮件通知栏中配置如下：
+ 
+其中，SMTP服务器是我们华为默认的SMTP服务器，用户默认邮件后表示系统会把EMAIL地址自动添加一个后缀作为最后的EMAIL地址，此项添与不添都可以，Sender Email Address项是要发送人的邮箱（注意：不是接收人），配置好后可以点击test configuration by sending test email来进行测试。
+这是进行一次Jenkins构建，发现邮件并没有发送到邮箱，是因为我们除在系统管理里统一配置以外，还必须给每个新建任务配置EMAIL的接受人等，点击你新建的任务—设置，在Post-build Actions里勾选email notification，在recipients里输入接收人，默认为你的域账号加上@notesmail.huawei.com，这样构建失败的时候jenkins会自动发送邮件到你的notes邮箱。
+设置登录用户：
+jenkins可以设置用户登录权限，点击系统管理，在配置页面中勾选启动安全—访问控制—允许用户注册，这样用户可以用自己的账号登录jenkins，如下图所示：
+ 
+配置gerrit-trigger:
+1、必要环境条件：
+1)	首先，保证gerrit服务器已经安装完毕（例如gerrit服务器安装在10.107.123.124:8081上面）
+2)	其次，安装jenkins所在的服务器主目录底下有SSH公钥和私钥。若没有，可以命令行输入ssh-keygen，然后一路回车，遇到y/n输入y，目录会生成一个隐藏格式的.ssh文件夹，里面有id_rsa和id_rsa.pub两个文件，分别为私钥和公钥。
+3)	把公钥文件的内容添加到gerrit服务器上（进入gerrit服务器，点击settings—SSH Public Keys—Add Key，粘贴id_sra.pub文件的内容进去，然后保存），这样jenkins就可以与gerrit进行通信。
+2、配置步骤：
+选择：系统管理—Gerrit-trigger，出现插件配置页面：	
+1)	Hostname：所使用的gerrit服务器地址。
+2)	Frontend URL:web页面的地址。
+3)	SSH Port:SSH端口号，默认为29418
+4)	username: 你所在gerrit服务器上注册的用户名
+5)	SSH keyfile:私钥在linux服务器服务器下存放的绝对路径。
+Gerrit Reporting Values和Code Review里的值全部设置为0即可，配置完以后点击SAVE保存。配置结果如下图所示，可以点击test connection测试是否与gerrit服务器连接成功。
+ 
+此时可以新建一个任务，选择NEW-job-freestyle即可，这里新建的工程名称为“test1”.选择建立好的工程，点击“设置“，在Gerrit Trigger一栏中选择Gerrit event，表明Jenkins触发方式为gerrit事件，然后在gerrit Trigger一栏里配置如下图所示：
+ 
+Build栏里面有个按钮Add build step，表示触发jenkins以后，要jenkins自动执行的事情，可以根据需求自行配置。
+最后要重新启动gerrit服务器，方法是到gerrit的安装目录的bin目录底下运行./gerrit.sh stop再运行./gerrit.sh start，若出现GERRIT_SITE未被设置的错误信息，则把安装gerrit的目录export到环境变量即可。
+3、测试gerrit触发jenkins自动构建：
+必要条件：
+1、在测试的服务器主目录底下有.gitconfig文件夹，把自己的gerrit用户名和邮箱写入此文件，可以执行git config –global user.name “YOURNAME”和git config –global user.email “YOUEMAIL”,这时候可以看到.gitconfig文件里面已经把你的用户名和EMAIL写入，这是与gerrit服务器交互时的信息。
+2、登录gerrit服务器，点击Admin-projects，可以看到很多git工程，这些是纳入到gerrit管理的工程，我们要测试的就是纳入管理的某个工程（比如example，可以到gerrit文件夹的review_site/git目录底下查看）
+3、确认所在服务器的公钥已经添加到gerrit服务器，而且用户名和EMAIL已经写入.gitconfig，在.gitconfig文件里再添加一行[url"ssh://w00194035@10.107.123.124:29418"]insteadOf=ssh://10.107.123.124，表示系统会自动把ssh://10.107.123.124替换成ssh://w00194035@10.107.123.124:29418。如图所示：
+ 
+
+测试步骤：
+1、	新建一个空目录，输入git clone ssh://10.107.123.124/example.git，把git库克隆到此文件夹，其中example.git是相对于/review_site/git的相对目录。
+2、	可以新添加一个文件vi test，写入内容并执行git add test和git commit –m ‘test’，把改动提交到本地git库
+3、	执行git push oritgin HEAD:refs/for/master，把本地库的改动推入gerrit管理的git库，若提示失败，请找管理员设置PUSH权限或者确认公钥是否添加到gerrit服务器。
+4、	登录gerrit服务器，可以看到新建的任务前面出现一个图标，表示构建是否成功，下图所示：
+ 
+5、	点击test1，进入工程，可以看见build hsitory里有此工程的运行情况，里面有构建的执行时间，和此次构建是否成功，右面对应的是gerrit服务器的提交，如下图所示，g5.1，可以打开gerrit服务器上出发此次构建的页面，可以详细查看本次提交。
+ 
+ 
+
